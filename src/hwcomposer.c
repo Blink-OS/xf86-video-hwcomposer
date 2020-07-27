@@ -14,7 +14,6 @@
 #include <dlfcn.h>
 
 #include <android-config.h>
-#include <sys/cdefs.h> // for __BEGIN_DECLS/__END_DECLS found in sync.h
 #include <sync/sync.h>
 #include <hybris/hwcomposerwindow/hwcomposer.h>
 
@@ -48,7 +47,7 @@ void hwc_set_power_mode(ScrnInfoPtr pScrn, int disp, int mode)
 	uint32_t hwc_version = hwc->hwcVersion;
 
 	if (hwc_version == HWC_DEVICE_API_VERSION_2_0) {
-		hwc2_compat_display_set_power_mode(hwc->hwc2_primary_display, (mode) ? HWC2_POWER_MODE_ON : HWC2_POWER_MODE_OFF);
+		hwc_set_power_mode_hwcomposer2(pScrn, disp, mode);
 	} else
 #ifdef HWC_DEVICE_API_VERSION_1_4
 	if (hwc_version == HWC_DEVICE_API_VERSION_1_4) {

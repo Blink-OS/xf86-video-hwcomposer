@@ -14,7 +14,6 @@
 #include <dlfcn.h>
 
 #include <android-config.h>
-#include <sys/cdefs.h> // for __BEGIN_DECLS/__END_DECLS found in sync.h
 #include <sync/sync.h>
 #include <hybris/hwcomposerwindow/hwcomposer.h>
 #include <hybris/hwc2/hwc2_compatibility_layer.h>
@@ -91,6 +90,8 @@ Bool hwc_hwcomposer2_init(ScrnInfoPtr pScrn)
 	hwc2_compat_layer_t* layer = hwc->hwc2_primary_layer =
         hwc2_compat_display_create_layer(hwc->hwc2_primary_display);
 
+    hwc->lastPresentFence = -1;
+
     hwc2_compat_layer_set_composition_type(layer, HWC2_COMPOSITION_CLIENT);
     hwc2_compat_layer_set_blend_mode(layer, HWC2_BLEND_MODE_NONE);
     hwc2_compat_layer_set_source_crop(layer, 0.0f, 0.0f, hwc->hwcWidth, hwc->hwcHeight);
@@ -109,7 +110,6 @@ void hwc_present_hwcomposer2(void *user_data, struct ANativeWindow *window,
 {
 	ScrnInfoPtr pScrn = (ScrnInfoPtr)user_data;
 	HWCPtr hwc = HWCPTR(pScrn);
-	static int lastPresentFence = -1;
 
 	uint32_t numTypes = 0;
     uint32_t numRequests = 0;
@@ -126,6 +126,7 @@ void hwc_present_hwcomposer2(void *user_data, struct ANativeWindow *window,
     }
 
 	hwc2_compat_display_t* hwcDisplay = hwc->hwc2_primary_display;
+    hwc_set_power_mode_hwcomposer2(pScrn, HWC_DISPLAY_PRIMARY, HWC2_POWER_MODE_ON);
 
     error = hwc2_compat_display_validate(hwcDisplay, &numTypes,
                                                     &numRequests);
@@ -153,12 +154,25 @@ void hwc_present_hwcomposer2(void *user_data, struct ANativeWindow *window,
     int presentFence = -1;
     hwc2_compat_display_present(hwcDisplay, &presentFence);
 
-    if (lastPresentFence != -1) {
-        sync_wait(lastPresentFence, -1);
-        close(lastPresentFence);
+    if (hwc->lastPresentFence != -1) {
+        sync_wait(hwc->lastPresentFence, -1);
+        close(hwc->lastPresentFence);
     }
 
-    lastPresentFence = presentFence != -1 ? dup(presentFence) : -1;
+    hwc->lastPresentFence = presentFence != -1 ? dup(presentFence) : -1;
 
     HWCNativeBufferSetFence(buffer, presentFence);
+}
+
+void hwc_set_power_mode_hwcomposer2(ScrnInfoPtr pScrn, int disp, int mode)
+{
+	HWCPtr hwc = HWCPTR(pScrn);
+
+    if (mode == DPMSModeOff && hwc->lastPresentFence != -1) {
+        sync_wait(hwc->lastPresentFence, -1);
+        close(hwc->lastPresentFence);
+        hwc->lastPresentFence = -1;
+    }
+
+    hwc2_compat_display_set_power_mode(hwc->hwc2_primary_display, (mode) ? HWC2_POWER_MODE_ON : HWC2_POWER_MODE_OFF);
 }

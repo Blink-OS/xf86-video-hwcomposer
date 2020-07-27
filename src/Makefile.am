@@ -35,11 +35,14 @@ hwcomposer_drv_ladir = @moduledir@/drivers
 hwcomposer_drv_la_SOURCES = \
          compat-api.h \
          display.c \
+         drihybris.c \
          driver.c \
          driver.h \
          glutils.c \
          hwcomposer.c \
          hwcomposer2.c \
+         pixmap.c \
+         pixmap.h \
          present.c \
          renderer.c \
          shaders.c

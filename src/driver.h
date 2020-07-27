@@ -44,10 +44,12 @@ Bool hwc_hwcomposer_init(ScrnInfoPtr pScrn);
 Bool hwc_hwcomposer2_init(ScrnInfoPtr pScrn);
 void hwc_hwcomposer_close(ScrnInfoPtr pScrn);
 Bool hwc_lights_init(ScrnInfoPtr pScrn);
+Bool hwc_drihybris_screen_init(ScreenPtr screen);
 
 struct ANativeWindow *hwc_get_native_window(ScrnInfoPtr pScrn);
 void hwc_toggle_screen_brightness(ScrnInfoPtr pScrn);
 void hwc_set_power_mode(ScrnInfoPtr pScrn, int disp, int mode);
+void hwc_set_power_mode_hwcomposer2(ScrnInfoPtr pScrn, int disp, int mode);
 
 Bool hwc_init_hybris_native_buffer(ScrnInfoPtr pScrn);
 Bool hwc_egl_renderer_init(ScrnInfoPtr pScrn, Bool do_glamor);
@@ -80,6 +82,7 @@ typedef struct {
 
 typedef struct {
     PFNEGLHYBRISCREATENATIVEBUFFERPROC eglHybrisCreateNativeBuffer;
+    PFNEGLHYBRISCREATEREMOTEBUFFERPROC eglHybrisCreateRemoteBuffer;
     PFNEGLHYBRISLOCKNATIVEBUFFERPROC eglHybrisLockNativeBuffer;
     PFNEGLHYBRISUNLOCKNATIVEBUFFERPROC eglHybrisUnlockNativeBuffer;
     PFNEGLHYBRISRELEASENATIVEBUFFERPROC eglHybrisReleaseNativeBuffer;
@@ -134,6 +137,7 @@ typedef struct HWCRec
     uint32_t hwcVersion;
     int hwcWidth;
     int hwcHeight;
+    int lastPresentFence;
 
     hwc2_compat_device_t* hwc2Device;
     hwc2_compat_display_t* hwc2_primary_display;
