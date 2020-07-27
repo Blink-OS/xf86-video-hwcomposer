@@ -1,0 +1,33 @@
+Source: xserver-xorg-video-hwcomposer
+Section: x11
+Priority: optional
+Maintainer: TheKit <nekit1000@gmail.com>
+Build-Depends: debhelper (>= 10),
+               quilt,
+               pkg-config,
+               xserver-xorg-dev (>= 2:1.11.99.901),
+               x11proto-video-dev,
+               x11proto-xf86dga-dev,
+               x11proto-core-dev,
+               x11proto-fonts-dev,
+               x11proto-randr-dev,
+               x11proto-render-dev,
+               xutils-dev,
+               libhybris-dev,
+               android-headers,
+               drihybris-dev,
+               glamor-hybris-dev,
+               libepoxy-dev
+Standards-Version: 4.1.1
+Vcs-Git: https://github.com/debian-pm/xserver-xorg-video-hwcomposer-packaging.git
+Vcs-Browser: https://github.com/debian-pm/xserver-xorg-video-hwcomposer-packaging
+
+Package: xserver-xorg-video-hwcomposer
+Architecture: any
+Depends: ${shlibs:Depends},
+         ${misc:Depends},
+         ${xviddriver:Depends},
+Provides: ${xviddriver:Provides}
+Description: X.Org X server -- hwcomposer driver
+ frame buffer driver for the Xorg X server,
+ utilizing Android HWComposer API through libhybris for rendering.
