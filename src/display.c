@@ -149,7 +149,9 @@ hwc_output_dpms(xf86OutputPtr output, int mode)
     if (mode == DPMSModeOn){
         // Force redraw after unblank
         // hwc_trigger_redraw(pScrn);
+        pthread_mutex_lock(&(hwc->rendererLock));
         hwc_toggle_vsync(pScrn,TRUE);
+        pthread_mutex_unlock(&(hwc->rendererLock));
         // 1.开启VSync,由VSync来通知绘制.
         // 2.收到VSync通知后,马上关闭VSync
         // 3.进行绘制,绘制完成后,再开启VSync.
