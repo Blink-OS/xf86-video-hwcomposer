@@ -620,7 +620,7 @@ static void hwcBlockHandler(ScreenPtr pScreen, void *timeout)
                 /* make sure created sync object eventually signals */
                 glFlush();
             }
-            hwc_trigger_redraw(pScrn);
+            hwc_toggle_vsync(crtc->scrn,TRUE);
         }
     }
 }
