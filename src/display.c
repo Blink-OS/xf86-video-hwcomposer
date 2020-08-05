@@ -146,9 +146,14 @@ hwc_output_dpms(xf86OutputPtr output, int mode)
     hwc_set_power_mode(pScrn, HWC_DISPLAY_PRIMARY, (mode == DPMSModeOn) ? 1 : 0);
     pthread_mutex_unlock(&(hwc->rendererLock));
 
-    if (mode == DPMSModeOn)
+    if (mode == DPMSModeOn){
         // Force redraw after unblank
-        hwc_trigger_redraw(pScrn);
+        // hwc_trigger_redraw(pScrn);
+        hwc_toggle_vsync(pScrn,TRUE);
+        // 1.开启VSync,由VSync来通知绘制.
+        // 2.收到VSync通知后,马上关闭VSync
+        // 3.进行绘制,绘制完成后,再开启VSync.
+    }
 }
 
 static xf86OutputStatus
@@ -179,6 +184,16 @@ static const xf86OutputFuncsRec hwc_output_funcs = {
     .mode_valid = hwc_output_mode_valid,
     .get_modes = hwc_output_get_modes
 };
+
+void
+hwc_toggle_vsync(ScrnInfoPtr pScrn,bool toggle)
+{
+    HWCPtr hwc = HWCPTR(pScrn);
+    if (hwc->hasVsync != toggle){
+        hwc->hasVsync = toggle;
+        hwc2_compat_display_set_vsync_enabled(hwc->hwc2_primary_display, toggle ? HWC2_VSYNC_ENABLE : HWC2_VSYNC_DISABLE);
+    }
+}
 
 void
 hwc_trigger_redraw(ScrnInfoPtr pScrn)

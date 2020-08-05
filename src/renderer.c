@@ -339,14 +339,15 @@ void *hwc_egl_renderer_thread(void *user_data)
 
     while (hwc->rendererIsRunning) {
         pthread_mutex_lock(&(hwc->dirtyLock));
-
         while (!hwc->dirty) {
+            // 收到VSync通知,
             pthread_cond_wait(&(hwc->dirtyCond), &(hwc->dirtyLock));
         }
 
         hwc->dirty = FALSE;
         pthread_mutex_unlock(&(hwc->dirtyLock));
 
+        hwc_toggle_vsync(pScrn,FALSE);
         pthread_mutex_lock(&(hwc->rendererLock));
         if (renderer->fence != EGL_NO_SYNC_KHR) {
             eglClientWaitSyncKHR(renderer->display,
