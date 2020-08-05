@@ -346,9 +346,8 @@ void *hwc_egl_renderer_thread(void *user_data)
         hwc->dirty = FALSE;
         pthread_mutex_unlock(&(hwc->dirtyLock));
 
-        hwc_toggle_vsync(pScrn,FALSE);
-
         pthread_mutex_lock(&(hwc->rendererLock));
+        hwc_toggle_vsync(pScrn,FALSE);
         if (renderer->fence != EGL_NO_SYNC_KHR) {
             eglClientWaitSyncKHR(renderer->display,
                 renderer->fence,
