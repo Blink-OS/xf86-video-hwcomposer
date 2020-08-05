@@ -73,7 +73,7 @@ hwc_set_cursor_position(xf86CrtcPtr crtc, int x, int y)
     HWCPtr hwc = HWCPTR(crtc->scrn);
     hwc->cursorX = x;
     hwc->cursorY = y;
-    hwc_trigger_redraw(crtc->scrn);
+    //hwc_trigger_redraw(crtc->scrn);
 }
 
 /*
@@ -86,15 +86,15 @@ hwc_set_cursor_position(xf86CrtcPtr crtc, int x, int y)
 static Bool
 hwc_load_cursor_argb_check(xf86CrtcPtr crtc, CARD32 *image)
 {
-    HWCPtr hwc = HWCPTR(crtc->scrn);
+    // HWCPtr hwc = HWCPTR(crtc->scrn);
 
-    glBindTexture(GL_TEXTURE_2D, hwc->renderer.cursorTexture);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, hwc->cursorWidth, hwc->cursorHeight,
-                    0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+    // glBindTexture(GL_TEXTURE_2D, hwc->renderer.cursorTexture);
+    // glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    // glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, hwc->cursorWidth, hwc->cursorHeight,
+    //                 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
 
-    hwc_trigger_redraw(crtc->scrn);
+    // hwc_trigger_redraw(crtc->scrn);
     return TRUE;
 }
 
@@ -103,7 +103,7 @@ hwc_hide_cursor(xf86CrtcPtr crtc)
 {
     HWCPtr hwc = HWCPTR(crtc->scrn);
     hwc->cursorShown = FALSE;
-    hwc_trigger_redraw(crtc->scrn);
+    //hwc_trigger_redraw(crtc->scrn);
 }
 
 static void
@@ -111,7 +111,7 @@ hwc_show_cursor(xf86CrtcPtr crtc)
 {
     HWCPtr hwc = HWCPTR(crtc->scrn);
     hwc->cursorShown = TRUE;
-    hwc_trigger_redraw(crtc->scrn);
+    //hwc_trigger_redraw(crtc->scrn);
 }
 
 static const xf86CrtcFuncsRec hwcomposer_crtc_funcs = {
