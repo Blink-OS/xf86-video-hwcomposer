@@ -73,7 +73,6 @@ hwc_set_cursor_position(xf86CrtcPtr crtc, int x, int y)
     HWCPtr hwc = HWCPTR(crtc->scrn);
     hwc->cursorX = x;
     hwc->cursorY = y;
-    hwc_trigger_redraw(crtc->scrn);
 }
 
 /*
@@ -93,8 +92,6 @@ hwc_load_cursor_argb_check(xf86CrtcPtr crtc, CARD32 *image)
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, hwc->cursorWidth, hwc->cursorHeight,
                     0, GL_RGBA, GL_UNSIGNED_BYTE, image);
-
-    hwc_trigger_redraw(crtc->scrn);
     return TRUE;
 }
 
@@ -103,7 +100,6 @@ hwc_hide_cursor(xf86CrtcPtr crtc)
 {
     HWCPtr hwc = HWCPTR(crtc->scrn);
     hwc->cursorShown = FALSE;
-    hwc_trigger_redraw(crtc->scrn);
 }
 
 static void
@@ -111,7 +107,6 @@ hwc_show_cursor(xf86CrtcPtr crtc)
 {
     HWCPtr hwc = HWCPTR(crtc->scrn);
     hwc->cursorShown = TRUE;
-    hwc_trigger_redraw(crtc->scrn);
 }
 
 static const xf86CrtcFuncsRec hwcomposer_crtc_funcs = {
@@ -146,9 +141,12 @@ hwc_output_dpms(xf86OutputPtr output, int mode)
     hwc_set_power_mode(pScrn, HWC_DISPLAY_PRIMARY, (mode == DPMSModeOn) ? 1 : 0);
     pthread_mutex_unlock(&(hwc->rendererLock));
 
-    if (mode == DPMSModeOn)
+    if (mode == DPMSModeOn){
         // Force redraw after unblank
-        hwc_trigger_redraw(pScrn);
+        pthread_mutex_lock(&(hwc->rendererLock));
+        hwc_toggle_vsync(pScrn,TRUE);
+        pthread_mutex_unlock(&(hwc->rendererLock));
+    }
 }
 
 static xf86OutputStatus
@@ -179,6 +177,16 @@ static const xf86OutputFuncsRec hwc_output_funcs = {
     .mode_valid = hwc_output_mode_valid,
     .get_modes = hwc_output_get_modes
 };
+
+void
+hwc_toggle_vsync(ScrnInfoPtr pScrn,bool toggle)
+{
+    HWCPtr hwc = HWCPTR(pScrn);
+    if (hwc->hasVsync != toggle){
+        hwc->hasVsync = toggle;
+        hwc2_compat_display_set_vsync_enabled(hwc->hwc2_primary_display, toggle ? HWC2_VSYNC_ENABLE : HWC2_VSYNC_DISABLE);
+    }
+}
 
 void
 hwc_trigger_redraw(ScrnInfoPtr pScrn)
